@@ -99,8 +99,18 @@ EDUCATIONAL ANSWERS:
 """
 
 
-# PDF embedding model
-embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+# PDF embedding model — lazy loading to reduce startup memory
+embedding_model = None
+
+def get_embedding_model():
+    """Load the embedding model only when PDF functionality needs it."""
+    global embedding_model
+
+    if embedding_model is None:
+        logger.info("Loading PDF embedding model...")
+        embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+
+    return embedding_model
 
 ALLOWED_EXTENSIONS = {"pdf"}
 MAX_PDF_PAGES = 200
@@ -744,7 +754,7 @@ def build_pdf_index(pdf_path, filename):
     if not chunks:
         raise ValueError("No text chunks could be created.")
 
-    embeddings = embedding_model.encode(
+    embeddings = get_embedding_model().encode(
         [chunk["text"] for chunk in chunks],
         convert_to_numpy=True,
         normalize_embeddings=True,
@@ -760,7 +770,7 @@ def build_pdf_index(pdf_path, filename):
 
 def retrieve_pdf_context(pdf_index, question, top_k=6, min_score=0.15):
     """Retrieve the most relevant PDF chunks, preferring useful matches."""
-    question_embedding = embedding_model.encode(
+    question_embedding = get_embedding_model().encode(
         [question],
         convert_to_numpy=True,
         normalize_embeddings=True,
