@@ -1,0 +1,18 @@
+GENAI ALL-FEATURES BUNDLE
+
+This bundle combines your current application code, mobile-responsive CSS, and Render deployment configuration. Existing features are retained in the source files.
+
+LOCAL SETUP
+1. Keep your original project folder as a backup.
+2. Copy your existing .env file into this folder (never share it or upload it to GitHub). Alternatively, copy .env.example to .env and fill in your own GEMINI_API_KEY and FLASK_SECRET_KEY.
+3. If you want your previous local accounts/chats/memories, copy the original project's data/chat_history.db into this folder's data/ folder. Copy data/uploads too if you need those PDFs. Do not share the database or PDFs.
+4. Activate your existing Conda environment and run: python app.py
+5. Open http://127.0.0.1:5000 and test login, chat, memory, voice, PDF Q&A/summarization, Markdown, and exports.
+
+DEPLOYMENT
+- See DEPLOY_RENDER.md. render.yaml uses a paid Render Starter service and a persistent disk. Check current pricing before creating resources.
+- Render environment variables are configured in render.yaml; enter GEMINI_API_KEY privately in Render. Do not upload .env.
+- PDF retrieval indexes are in memory and need the PDF to be uploaded again after an app restart.
+
+PRIVACY
+This ZIP intentionally excludes your real .env, SQLite database, and uploaded PDFs. These are private local data, not application source code.

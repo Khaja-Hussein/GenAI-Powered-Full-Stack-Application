@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenAI Studio</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['\\(', '\\)'], ['$', '$']],
+          displayMath: [['\\[', '\\]'], ['$$', '$$']],
+          processEscapes: true,
+          processEnvironments: true
+        },
+        options: { skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'] },
+        startup: { typeset: false }
+      };
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+</head>
+
+<body>
+    <section id="auth-screen" class="auth-screen" hidden>
+        <div class="auth-card">
+            <div class="auth-brand">✦ GenAI Studio</div>
+            <h1 id="auth-title">Welcome back</h1>
+            <p id="auth-subtitle">Log in to your private AI workspace.</p>
+            <div id="auth-error" class="auth-error" role="alert" aria-live="polite"></div>
+
+            <form id="login-form" class="auth-form">
+                <label for="login-email">Email</label>
+                <input id="login-email" type="email" autocomplete="email" required maxlength="254">
+                <label for="login-password">Password</label>
+                <div class="password-field">
+                    <input id="login-password" type="password" autocomplete="current-password" required maxlength="128">
+                    <button type="button" class="password-toggle" data-password-target="login-password" aria-label="Show password" title="Show password">👁️</button>
+                </div>
+                <button type="submit" class="primary-button">Log In</button>
+            </form>
+
+            <form id="signup-form" class="auth-form" hidden>
+                <label for="signup-username">Username</label>
+                <input id="signup-username" type="text" autocomplete="username" required maxlength="40">
+                <label for="signup-email">Email</label>
+                <input id="signup-email" type="email" autocomplete="email" required maxlength="254">
+                <label for="signup-password">Password (minimum 8 characters)</label>
+                <div class="password-field">
+                    <input id="signup-password" type="password" autocomplete="new-password" required minlength="8" maxlength="128">
+                    <button type="button" class="password-toggle" data-password-target="signup-password" aria-label="Show password" title="Show password">👁️</button>
+                </div>
+                <button type="submit" class="primary-button">Create Account</button>
+            </form>
+
+            <p class="auth-switch" id="auth-switch-text">New here?
+                <button type="button" id="show-signup" class="text-button">Create an account</button>
+            </p>
+            <p class="auth-switch" id="login-switch-text" hidden>Already have an account?
+                <button type="button" id="show-login" class="text-button">Log in</button>
+            </p>
+        </div>
+    </section>
+
+    <div id="app-shell" hidden>
+    <nav class="navbar">
+        <div class="logo">✦ GenAI Studio</div>
+        <div class="nav-user">
+            <span id="logged-in-user"></span>
+            <button type="button" id="logout-button" class="clear-button">Log out</button>
+            <span class="nav-status">● AI Online</span>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <div class="badge">✦ Powered by Gemini AI</div>
+
+            <h1>
+                Your AI Workspace<br>
+                <span class="gradient-text">Chat. Learn. Discover.</span>
+            </h1>
+
+            <p>Chat with AI, explore ideas, and ask questions about your documents.</p>
+        </section>
+
+        <section class="workspace">
+
+            <!-- Conversation History -->
+            <aside class="panel history-panel">
+                <div class="panel-heading">
+                    <div>
+                        <h2>💬 Chat History</h2>
+                        <p>Your saved conversations</p>
+                    </div>
+                </div>
+
+                <button id="new-chat-button" class="primary-button">
+                    + New Chat
+                </button>
+
+                <div id="conversation-list" class="conversation-list">
+                    Loading conversations...
+                </div>
+            </aside>
+
+            <!-- Smart Memory -->
+            <section class="panel memory-panel">
+                <div class="panel-heading">
+                    <div>
+                        <h2>🧠 Smart Memory</h2>
+                        <p>Facts the AI can remember across conversations</p>
+                    </div>
+                    <button type="button" id="refresh-memories" class="clear-button">Refresh</button>
+                </div>
+                <form id="memory-form" class="memory-form">
+                    <label for="memory-key">Memory name</label>
+                    <input id="memory-key" type="text" maxlength="100" placeholder="e.g. favorite_language" required>
+                    <label for="memory-value">What should the AI remember?</label>
+                    <textarea id="memory-value" rows="2" maxlength="1000" placeholder="e.g. Python" required></textarea>
+                    <button type="submit" id="save-memory-button" class="primary-button">Save Memory</button>
+                </form>
+                <p id="memory-status" class="status-message" aria-live="polite">Loading saved memories...</p>
+                <div id="memory-list" class="memory-list" aria-live="polite"></div>
+            </section>
+
+            <!-- PDF Assistant -->
+            <section class="panel document-panel">
+                <div class="panel-heading">
+                    <div>
+                        <h2>📄 PDF Assistant</h2>
+                        <p>Upload a document and ask questions.</p>
+                    </div>
+                </div>
+
+                <form id="upload-form">
+                    <label for="pdf-file" class="upload-area">
+                        <span class="upload-icon">📁</span>
+                        <strong>Select a PDF document</strong>
+                        <span>Maximum file size: 10 MB</span>
+                    </label>
+
+                    <input
+                        type="file"
+                        id="pdf-file"
+                        name="file"
+                        accept=".pdf,application/pdf"
+                        required
+                    >
+
+                    <button type="submit" id="upload-button" class="primary-button">
+                        Upload PDF
+                    </button>
+                </form>
+
+                <div id="upload-status" class="status-message" aria-live="polite">
+                    No document uploaded yet.
+                </div>
+
+                <div class="document-question">
+                    <label for="pdf-question">Ask about your document</label>
+
+                    <textarea
+                        id="pdf-question"
+                        placeholder="Example: Summarize this document..."
+                        rows="3"
+                        maxlength="10000"
+                    ></textarea>
+
+                    <button id="ask-pdf-button" class="primary-button" type="button">
+                        Ask About PDF
+                    </button>
+                </div>
+
+                <div id="pdf-answer" class="answer-box" aria-live="polite">
+                    Your document answers will appear here.
+                </div>
+            </section>
+
+            <!-- AI Chat -->
+            <section class="panel chat-panel">
+                <div class="panel-heading">
+                    <div>
+                        <h2>🤖 AI Assistant</h2>
+                        <p id="active-chat-title">New Conversation</p>
+                    </div>
+
+                    <div class="chat-actions">
+    <button type="button" id="export-txt" class="clear-button">
+        📄 Export TXT
+    </button>
+
+    <button type="button" id="export-pdf" class="clear-button">
+        📕 Export PDF
+    </button>
+
+    <button type="button" id="clear-chat" class="clear-button">
+        + New Chat
+    </button>
+</div>
+                </div>
+
+                <div id="chat-messages" class="chat-messages" aria-live="polite">
+                    <div class="message assistant">
+                        Hi! I'm your AI assistant. What would you like to know?
+                    </div>
+                </div>
+
+                <form id="chat-form" class="chat-form">
+                    <input
+                        type="text"
+                        id="message-input"
+                        placeholder="Ask me anything..."
+                        autocomplete="off"
+                        maxlength="10000"
+                        required
+                    >
+
+                    <button type="button" id="voice-button" class="voice-button" aria-label="Start voice input" title="Speak your message">🎙️</button>
+                    <button type="submit" id="send-button">Send ↑</button>
+                </form>
+                <p id="voice-status" class="voice-status" aria-live="polite">Tap the microphone to speak.</p>
+
+                <p class="chat-note">
+                    Your conversations are saved in the local SQLite database.
+                </p>
+            </section>
+
+        </section>
+    </main>
+
+    <footer>
+        GenAI-Powered Full-Stack Application · Flask · Gemini · SQLite · RAG
+    </footer>
+
+    </div>
+    <script src="{{ url_for('static', filename='auth.js') }}"></script>
+</body>
+</html>

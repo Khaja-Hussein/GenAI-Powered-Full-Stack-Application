@@ -1,0 +1,23 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python environments/cache
+__pycache__/
+*.py[cod]
+.conda/
+venv/
+.venv/
+
+# Private local user data
+data/*.db
+data/uploads/
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Private application data
+data/

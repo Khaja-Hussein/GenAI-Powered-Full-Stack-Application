@@ -1,0 +1,35 @@
+GENAI STUDIO - LOGIN/SIGNUP UPDATE
+
+IMPORTANT
+- Keep your existing project folder and make a backup first.
+- Do NOT replace or delete your existing .env file.
+- Do NOT replace your data/chat_history.db file or data/uploads folder.
+- This ZIP intentionally excludes your local database and uploaded PDFs.
+
+INSTALL
+1. Stop Flask in VS Code (Ctrl+C in the terminal).
+2. Extract this ZIP.
+3. Open the extracted GenAI-Powered-Full-Stack-Application folder.
+4. Copy its app.py, .gitignore, README.txt, and .env.example into your existing project folder.
+5. Copy templates/index.html into your existing templates folder.
+6. Copy static/style.css, static/auth.js, and static/script.js into your existing static folder.
+   (script.js is included unchanged so the package is complete.)
+7. Do not rename the files or folders.
+8. Start the app using the same command/environment you normally use, e.g.:
+      python app.py
+9. Open http://127.0.0.1:5000 and create an account.
+
+FEATURES
+- Signup, login, logout.
+- Passwords stored as secure hashes.
+- Chat history and Smart Memory are scoped to the signed-in account.
+- Existing chat rows are preserved in the SQLite database. Old rows that do not
+  have an owner are hidden rather than automatically assigned to a new account.
+- PDF uploads remain in your local data/uploads folder and are not included in this ZIP.
+
+TROUBLESHOOTING
+- If Flask says a package is missing, activate your existing Conda environment and
+  install project requirements with: pip install -r requirements.txt
+- Keep GEMINI_API_KEY and FLASK_SECRET_KEY in your existing .env.
+- This is suitable for local development. Do not expose it publicly without
+  adding CSRF protection, rate limiting, HTTPS, and production deployment hardening.
